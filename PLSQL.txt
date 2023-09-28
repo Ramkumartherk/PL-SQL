@@ -1,0 +1,204 @@
+DECLARE 
+   a integer := 10; 
+   b integer := 20; 
+   c integer; 
+   f real; 
+BEGIN 
+   c := a + b; 
+   dbms_output.put_line('Value of c: ' || c); 
+   f := 70.0/3.0; 
+   dbms_output.put_line('Value of f: ' || f); 
+END;
+
+
+VARIABLE SCOPE 
+
+DECLARE 
+   -- Global variables  
+   num1 number := 95;  
+   num2 number := 85;  
+BEGIN  
+   dbms_output.put_line('Outer Variable num1: ' || num1); 
+   dbms_output.put_line('Outer Variable num2: ' || num2); 
+   DECLARE  
+      -- Local variables 
+      num1 number := 195;  
+      num2 number := 185;  
+   BEGIN  
+      dbms_output.put_line('Inner Variable num1: ' || num1); 
+      dbms_output.put_line('Inner Variable num2: ' || num2); 
+   END;  
+END; 
+
+FOR LOOP
+
+
+DECLARE
+   n NUMBER := 5;
+BEGIN
+   FOR i IN 1..n LOOP
+      DBMS_OUTPUT.PUT_LINE('Iteration ' || i);
+   END LOOP;
+END;
+
+
+CONDITIONAL STATEMENTS
+
+
+DECLARE
+   x NUMBER := 10;
+   y NUMBER := 5;
+BEGIN
+   IF x > 0 THEN
+      IF y > 0 THEN
+         DBMS_OUTPUT.PUT_LINE('Both x and y are positive.');
+      ELSE
+         DBMS_OUTPUT.PUT_LINE('x is positive, but y is not.');
+      END IF;
+   ELSE
+      DBMS_OUTPUT.PUT_LINE('x is not positive.');
+   END IF;
+END;
+
+
+STORE PROCEDURE
+
+CREATE OR REPLACE PROCEDURE GetEmployeeInfo(
+   p_employee_id IN NUMBER,
+   p_employee_name OUT VARCHAR2,
+   p_employee_salary OUT NUMBER
+) AS
+BEGIN
+   -- Declare variables to store employee information
+   DECLARE
+      v_employee_name VARCHAR2(50);
+      v_employee_salary NUMBER;
+   BEGIN
+      -- Retrieve employee information from the employees table
+      SELECT first_name || ' ' || last_name, salary
+      INTO v_employee_name, v_employee_salary
+      FROM employees
+      WHERE employee_id = p_employee_id;
+
+      -- Assign values to OUT parameters
+      p_employee_name := v_employee_name;
+      p_employee_salary := v_employee_salary;
+   EXCEPTION
+      WHEN NO_DATA_FOUND THEN
+         -- Handle the case where the employee ID is not found
+         p_employee_name := 'Employee not found';
+         p_employee_salary := NULL;
+   END;
+END;
+
+
+CALL STORE PROCEDURE
+
+
+DECLARE
+   emp_name VARCHAR2(50);
+   emp_salary NUMBER;
+BEGIN
+   GetEmployeeInfo(101, emp_name, emp_salary);
+   DBMS_OUTPUT.PUT_LINE('Employee Name: ' || emp_name);
+   DBMS_OUTPUT.PUT_LINE('Employee Salary: ' || emp_salary);
+END;
+
+
+FUNCTION
+
+CREATE OR REPLACE FUNCTION CalculateRectangleArea(
+   p_length IN NUMBER,
+   p_width IN NUMBER
+) RETURN NUMBER IS
+   v_area NUMBER;
+BEGIN
+   
+   v_area := p_length * p_width;
+   
+  
+   RETURN v_area;
+END CalculateRectangleArea;
+
+
+CALL FUNCTION
+
+CREATE OR REPLACE FUNCTION CalculateRectangleArea(
+   p_length IN NUMBER,
+   p_width IN NUMBER
+) RETURN NUMBER IS
+   v_area NUMBER;
+BEGIN
+   
+   v_area := p_length * p_width;
+   
+   
+   RETURN v_area;
+END CalculateRectangleArea;
+
+
+CURSOR
+
+
+DECLARE
+   CURSOR employee_cursor IS
+      SELECT employee_id, first_name, last_name, salary
+      FROM employees;
+   
+   
+   v_employee_id NUMBER;
+   v_first_name VARCHAR2(50);
+   v_last_name VARCHAR2(50);
+   v_salary NUMBER;
+BEGIN
+   
+   OPEN employee_cursor;
+
+   
+   LOOP
+      
+      FETCH employee_cursor INTO v_employee_id, v_first_name, v_last_name, v_salary;
+
+     
+      EXIT WHEN employee_cursor%NOTFOUND;
+
+     
+      DBMS_OUTPUT.PUT_LINE('Employee ID: ' || v_employee_id);
+      DBMS_OUTPUT.PUT_LINE('Name: ' || v_first_name || ' ' || v_last_name);
+      DBMS_OUTPUT.PUT_LINE('Salary: ' || v_salary);
+   END LOOP;
+
+   
+   CLOSE employee_cursor;
+END;
+
+RECORDS
+
+
+DECLARE 
+   customer_rec customers%rowtype; 
+BEGIN 
+   SELECT * into customer_rec 
+   FROM customers 
+   WHERE id = 5;  
+   dbms_output.put_line('Customer ID: ' || customer_rec.id); 
+   dbms_output.put_line('Customer Name: ' || customer_rec.name); 
+   dbms_output.put_line('Customer Address: ' || customer_rec.address); 
+   dbms_output.put_line('Customer Salary: ' || customer_rec.salary); 
+END; 
+
+
+TRIGGERS 
+
+CREATE OR REPLACE TRIGGER display_salary_changes 
+BEFORE DELETE OR INSERT OR UPDATE ON customers 
+FOR EACH ROW 
+WHEN (NEW.ID > 0) 
+DECLARE 
+   sal_diff number; 
+BEGIN 
+   sal_diff := :NEW.salary  - :OLD.salary; 
+   dbms_output.put_line('Old salary: ' || :OLD.salary); 
+   dbms_output.put_line('New salary: ' || :NEW.salary); 
+   dbms_output.put_line('Salary difference: ' || sal_diff); 
+END; 
